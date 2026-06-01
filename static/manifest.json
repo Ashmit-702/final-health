@@ -1,0 +1,10 @@
+{
+  "name": "Dadi Ki Dawai",
+  "short_name": "Dadi",
+  "description": "Your caring AI health companion",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF4E8",
+  "theme_color": "#C05A2A",
+  "orientation": "portrait"
+}

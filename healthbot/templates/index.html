@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dadi Ki Dawai</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#C05A2A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dadi Ki Dawai">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --terra:#C05A2A;--terra2:#A04020;
+  --gold:#C8860A;--gold2:#A86D08;--gold3:#F0A830;
+  --sage:#4A8C6A;--sage2:#357050;
+  --teal:#2E7D8C;--teal2:#1E5F6C;
+  --bg:#FBF4E8;--bg2:#F5ECD8;--bg3:#EEE0C4;
+  --panel:#FFFCF5;
+  --text:#3A2410;--text2:#5C3820;--muted:#8B6040;--hint:#B8906A;
+  --border:#DCC89A;--border2:#C8AA78;
+  --r:12px;--rl:18px;
+  --f:'Nunito',sans-serif;--fd:'Lora',serif;
+  --sh:0 2px 12px rgba(58,36,16,.1);
+}
+html,body{height:100%;margin:0;padding:0;overflow:hidden}
+body{font-family:var(--f);background:var(--bg);color:var(--text);font-size:14px}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  background:linear-gradient(135deg,#8B4513 0%,#C05A2A 65%,#8B6914 100%);
+  box-shadow:0 2px 18px rgba(139,69,19,.4)}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:repeating-linear-gradient(90deg,var(--gold3) 0,var(--gold3) 10px,transparent 10px,transparent 14px)}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-av{width:40px;height:40px;border-radius:50%;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  border:2.5px solid rgba(255,255,255,.5);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.logo-name{font-family:var(--fd);font-style:italic;font-size:19px;color:#FFF8EE;
+  text-shadow:0 1px 3px rgba(0,0,0,.25);white-space:nowrap}
+.logo-tag{font-size:10.5px;color:rgba(255,248,238,.75);white-space:nowrap}
+.hdr-btns{display:flex;gap:6px}
+.hbtn{background:rgba(255,248,238,.15);border:1px solid rgba(255,248,238,.3);
+  color:#FFF8EE;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:var(--f);transition:all .2s}
+.hbtn:hover{background:rgba(255,248,238,.28)}
+.hbtn.sos{background:rgba(160,64,32,.85);animation:sosp 2.5s infinite}
+@keyframes sosp{0%,100%{box-shadow:0 0 0 0 rgba(192,90,42,.5)}50%{box-shadow:0 0 0 7px rgba(192,90,42,0)}}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;padding-top:58px;position:relative;z-index:1}
+.sidenav{width:62px;flex-shrink:0;background:var(--bg2);border-right:1.5px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:3px}
+.sn-btn{width:48px;height:48px;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  border:1.5px solid transparent;background:none;transition:all .18s}
+.sn-btn:hover{background:var(--bg3)}
+.sn-btn.active{background:linear-gradient(135deg,var(--terra),var(--gold));
+  box-shadow:0 3px 12px rgba(192,90,42,.38)}
+.sn-btn .ico{font-size:18px;line-height:1}
+.sn-btn .lbl{font-size:8px;font-weight:700;color:var(--muted);line-height:1}
+.sn-btn.active .lbl{color:#FFF8EE}
+.sn-sep{width:32px;height:1px;background:var(--border);margin:4px 0}
+.sn-sos{width:48px;height:48px;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  border:1.5px solid rgba(192,90,42,.3);background:rgba(192,90,42,.08)}
+.sn-sos .ico{font-size:18px}
+.sn-sos .lbl{font-size:8px;font-weight:700;color:var(--terra2)}
+
+.main{flex:1;display:flex;overflow:hidden;min-width:0}
+.page{display:none;flex:1;overflow:hidden;min-width:0}
+.page.active{display:flex}
+
+/* CHAT PAGE */
+#pg-chat{flex-direction:row}
+.chat-left{width:215px;flex-shrink:0;background:var(--panel);
+  border-right:1.5px solid var(--border);overflow-y:auto;padding:14px 10px;
+  display:flex;flex-direction:column;gap:12px}
+.chat-mid{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:0}
+.chat-right{width:245px;flex-shrink:0;background:var(--panel);
+  border-left:1.5px solid var(--border);overflow-y:auto;padding:14px 10px;
+  display:flex;flex-direction:column;gap:12px}
+.chat-left::-webkit-scrollbar,.chat-right::-webkit-scrollbar,.msgs::-webkit-scrollbar,.tool-scroll::-webkit-scrollbar{width:3px}
+.chat-left::-webkit-scrollbar-thumb,.chat-right::-webkit-scrollbar-thumb,.msgs::-webkit-scrollbar-thumb,.tool-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* TOOL PAGES */
+.tool-page{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:0}
+.tool-scroll{flex:1;overflow-y:auto;padding:26px 30px}
+.tool-title{font-family:var(--fd);font-size:23px;font-style:italic;color:var(--text);margin-bottom:5px}
+.tool-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:20px}
+.two-col{display:grid;grid-template-columns:370px 1fr;gap:22px;align-items:start}
+
+/* LABELS */
+.slbl{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.3px;color:var(--gold2);margin-bottom:6px}
+.slbl::before,.slbl::after{content:'✦';font-size:7px}
+.fl{font-size:10px;color:var(--terra2);font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:4px}
+
+/* CARDS */
+.form-card,.result-card{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:var(--rl);padding:18px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.form-card::before,.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--terra),var(--gold3),var(--sage))}
+.form-card{display:flex;flex-direction:column;gap:12px}
+.result-card{min-height:320px}
+
+/* FORMS */
+.fi{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;
+  padding:8px 11px;color:var(--text);font-size:13px;font-family:var(--f);outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--gold);background:var(--panel)}
+.fi::placeholder{color:var(--hint);font-style:italic}
+.fi option{background:var(--panel)}
+textarea.fi{resize:vertical;line-height:1.6;min-height:140px}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* BUTTONS */
+.btn{width:100%;padding:10px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:var(--f);border:none;border-radius:11px;transition:all .18s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn-terra{background:linear-gradient(135deg,var(--terra2),var(--terra));color:#FFF8EE;box-shadow:0 3px 12px rgba(192,90,42,.3)}
+.btn-teal{background:linear-gradient(135deg,var(--teal2),var(--teal));color:#FFF8EE;box-shadow:0 3px 12px rgba(46,125,140,.28)}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#FFF8EE;box-shadow:0 3px 12px rgba(200,134,10,.3)}
+.btn-sage{background:linear-gradient(135deg,var(--sage2),var(--sage));color:#FFF8EE;box-shadow:0 3px 12px rgba(74,140,106,.28)}
+
+/* RESULTS */
+.rph{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:260px;gap:10px;text-align:center}
+.rph-ico{font-size:44px;opacity:.18}
+.rph-txt{font-size:13px;color:var(--muted);font-style:italic}
+.rc{font-size:13.5px;line-height:1.72;color:var(--text)}
+.rc h2{font-family:var(--fd);font-size:15px;color:var(--terra);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.rc h3{font-size:13.5px;font-weight:700;color:var(--text2);margin:9px 0 3px}
+.rc strong{font-weight:700;color:var(--text2)}
+.rc ul,.rc ol{padding-left:18px;margin:3px 0 8px}
+.rc li{margin:3px 0;line-height:1.6}
+.rc-load{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-style:italic;padding:20px 0}
+
+/* TOPICS */
+.tps{display:flex;flex-direction:column;gap:3px}
+.tbtn{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;
+  background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;
+  color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--f);
+  text-align:left;transition:all .15s;font-weight:500}
+.tbtn:hover{border-color:var(--gold);color:var(--gold2);transform:translateX(2px)}
+
+/* SYMPTOM */
+.sym-box{background:var(--bg2);border:2px dashed var(--border2);border-radius:12px;padding:11px}
+.sym-hint{font-size:11px;color:var(--muted);margin-bottom:7px;font-style:italic}
+.sym-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:24px;margin-bottom:7px}
+.stag{background:rgba(200,134,10,.12);border:1px solid rgba(200,134,10,.3);
+  color:var(--gold2);padding:3px 9px;border-radius:20px;
+  font-size:11px;display:flex;align-items:center;gap:4px;font-weight:500}
+.stag button{background:none;border:none;cursor:pointer;color:inherit;font-size:14px;line-height:1;opacity:.6}
+.sym-row{display:flex;gap:5px}
+.sinp{flex:1;background:var(--panel);border:1.5px solid var(--border);
+  border-radius:8px;padding:6px 8px;color:var(--text);font-size:12px;font-family:var(--f);outline:none}
+.sinp:focus{border-color:var(--gold)}
+.sinp::placeholder{color:var(--hint);font-style:italic}
+.sadd{background:var(--terra);color:#FFF8EE;border:none;border-radius:8px;
+  padding:6px 12px;font-size:14px;cursor:pointer;font-weight:700}
+
+/* BODY MAP */
+.bmap{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+.ba-btn{padding:7px 4px;background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:8px;font-size:11px;color:var(--text2);cursor:pointer;
+  font-family:var(--f);transition:all .14s;text-align:center;font-weight:500}
+.ba-btn:hover{border-color:var(--sage);color:var(--sage2)}
+
+/* CHIPS */
+.chip{background:var(--panel);border:1.5px solid var(--border);border-radius:20px;
+  padding:6px 13px;font-size:12px;color:var(--text2);cursor:pointer;
+  font-family:var(--f);font-weight:500;transition:all .15s}
+.chip:hover{border-color:var(--terra);color:var(--terra2);transform:translateY(-2px)}
+
+/* RIGHT SIDEBAR */
+.emg-card{background:rgba(192,90,42,.06);border:1.5px solid rgba(192,90,42,.25);
+  border-radius:var(--rl);padding:13px;position:relative;overflow:hidden}
+.emg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--terra)}
+.emg-title{color:var(--terra2);font-weight:700;font-size:12px;margin-bottom:8px}
+.emg-num{font-family:var(--fd);font-size:24px;font-weight:600;color:var(--terra2);
+  text-align:center;letter-spacing:3px;padding:5px;
+  background:rgba(192,90,42,.08);border-radius:8px;margin:3px 0}
+.emg-sub{font-size:9.5px;color:rgba(160,64,32,.55);text-align:center;margin-bottom:3px}
+.emg-list{list-style:none;font-size:11px;color:var(--terra2);opacity:.8;
+  display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.emg-list li::before{content:"▸";font-size:9px;margin-right:4px}
+
+.tip-card{background:rgba(200,134,10,.08);border:1.5px solid rgba(200,134,10,.3);border-radius:var(--rl);padding:12px}
+.tip-title{font-family:var(--fd);font-size:12px;font-style:italic;color:var(--gold2);margin-bottom:6px}
+.tip-body{font-size:12px;color:var(--text2);line-height:1.65}
+.tip-next{width:100%;margin-top:8px;padding:6px;background:none;
+  border:1.5px dashed var(--border2);border-radius:8px;color:var(--muted);
+  font-size:11px;cursor:pointer;font-family:var(--f);font-style:italic;transition:all .15s}
+.tip-next:hover{border-color:var(--gold2);color:var(--gold2)}
+
+.ranges-card{background:rgba(74,140,106,.05);border:1.5px solid rgba(74,140,106,.2);
+  border-radius:var(--rl);padding:12px;position:relative;overflow:hidden}
+.ranges-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--sage),var(--teal))}
+.rrow{display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0;font-size:11px;border-bottom:1px dashed var(--border)}
+.rrow:last-child{border:none}
+.rlbl{color:var(--muted)}
+.rval{color:var(--sage2);font-weight:700}
+
+/* REMINDERS */
+.rem-card{background:rgba(46,125,140,.06);border:1.5px solid rgba(46,125,140,.22);
+  border-radius:var(--rl);padding:13px;position:relative;overflow:hidden}
+.rem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--sage))}
+.rem-title{color:var(--teal2);font-weight:700;font-size:12px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between}
+.rem-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;max-height:160px;overflow-y:auto}
+.rem-item{display:flex;align-items:center;gap:7px;padding:6px 8px;
+  background:var(--panel);border:1.5px solid var(--border);border-radius:8px;font-size:11.5px}
+.rem-item.done{opacity:.5;text-decoration:line-through}
+.rem-cb{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);font-size:10px}
+.rem-cb.checked{background:var(--sage);border-color:var(--sage);color:#fff}
+.rem-txt{flex:1;line-height:1.3}
+.rem-time{font-size:10px;color:var(--hint);flex-shrink:0}
+.rem-del{background:none;border:none;cursor:pointer;color:var(--hint);font-size:14px;opacity:.5}
+.rem-del:hover{opacity:1;color:var(--terra)}
+.rem-inp{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:7px;
+  padding:5px 8px;color:var(--text);font-size:11.5px;font-family:var(--f);outline:none}
+.rem-inp:focus{border-color:var(--teal)}
+.rem-inp::placeholder{color:var(--hint);font-style:italic;font-size:11px}
+.rem-time-inp{background:var(--bg2);border:1.5px solid var(--border);border-radius:7px;
+  padding:5px 6px;color:var(--text);font-size:12px;font-family:var(--f);outline:none;flex:1}
+.rem-add-btn{background:var(--teal);color:#fff;border:none;border-radius:7px;
+  padding:6px 14px;font-size:13px;cursor:pointer;font-weight:700}
+
+/* HOSPITALS */
+.hosp-card{background:rgba(46,125,140,.06);border:1.5px solid rgba(46,125,140,.2);
+  border-radius:var(--rl);padding:13px;position:relative;overflow:hidden}
+.hosp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--sage))}
+.hosp-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--teal2),var(--teal));
+  color:#FFF8EE;border:none;border-radius:9px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:var(--f);transition:all .15s;margin-top:6px}
+.hosp-btn:hover{opacity:.88}
+
+/* CHAT */
+.msgs{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:14px;text-align:center;padding:20px;animation:fi .5s ease}
+@keyframes fi{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.w-big{width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border:3px solid var(--terra);display:flex;align-items:center;justify-content:center;
+  font-size:50px;box-shadow:0 6px 24px rgba(192,90,42,.2),0 0 0 8px rgba(192,90,42,.07);
+  animation:bob 3s ease-in-out infinite}
+.w-title{font-family:var(--fd);font-size:22px;font-style:italic;color:var(--text)}
+.w-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.65}
+.w-disc{background:rgba(200,134,10,.08);border:1.5px solid rgba(200,134,10,.28);
+  border-radius:10px;padding:9px 13px;font-size:11px;color:var(--text2);max-width:400px;line-height:1.55}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:480px}
+
+.msg{display:flex;gap:9px;animation:fi .22s ease}
+.msg.user{flex-direction:row-reverse}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;border:2px solid var(--border)}
+.msg.ai .av{background:linear-gradient(135deg,var(--bg3),var(--bg2));border-color:var(--terra)}
+.msg.user .av{background:rgba(74,140,106,.12);border-color:var(--sage)}
+.mwrap{max-width:78%;display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden}
+.bubble{padding:11px 15px;font-size:13.5px;line-height:1.8;border-radius:var(--rl);position:relative;word-break:break-word;overflow-wrap:break-word;min-width:0}
+.msg.ai .bubble{background:var(--panel);border:1.5px solid var(--border);
+  border-radius:3px var(--rl) var(--rl) var(--rl);box-shadow:var(--sh)}
+.msg.ai .bubble::before{content:'';position:absolute;left:-1.5px;top:12px;
+  width:3px;height:calc(100% - 24px);
+  background:linear-gradient(to bottom,var(--terra),var(--gold));border-radius:0 2px 2px 0}
+.msg.user .bubble{background:rgba(74,140,106,.1);border:1.5px solid rgba(74,140,106,.22);
+  border-radius:var(--rl) 3px var(--rl) var(--rl)}
+.bubble h2{font-family:var(--fd);font-size:14px;color:var(--terra);margin:10px 0 4px}
+.bubble h3{font-size:13.5px;font-weight:700;color:var(--text2);margin:8px 0 3px}
+.bubble strong{font-weight:700;color:var(--text2)}
+.bubble ul,.bubble ol{padding-left:16px;margin:4px 0}
+.bubble li{margin:3px 0}
+.dadi-says{font-size:10.5px;color:var(--terra);font-weight:700;padding:0 3px;font-family:var(--fd);font-style:italic}
+.mtime{font-size:10px;color:var(--hint);padding:0 3px;font-style:italic}
+.msg.user .mtime{text-align:right}
+.msg-actions{display:flex;gap:4px;padding:2px 3px}
+.msg-act-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  padding:2px 7px;font-size:12px;cursor:pointer;color:var(--hint);transition:all .15s}
+.msg-act-btn:hover{border-color:var(--terra);color:var(--terra);background:rgba(192,90,42,.06)}
+.typing{display:flex;gap:5px;align-items:center;padding:11px 15px}
+.tdot{width:7px;height:7px;border-radius:50%;animation:blt 1.2s infinite}
+.tdot:nth-child(1){background:var(--terra)}
+.tdot:nth-child(2){background:var(--gold);animation-delay:.2s}
+.tdot:nth-child(3){background:var(--sage);animation-delay:.4s}
+@keyframes blt{0%,60%,100%{opacity:.2;transform:scale(.7)}30%{opacity:1;transform:scale(1)}}
+
+/* INPUT */
+.inp-area{padding:12px 16px;border-top:2px solid var(--border);background:var(--panel);
+  position:relative;flex-shrink:0}
+.inp-area::before{content:'';position:absolute;top:-2px;left:0;right:0;height:2px;
+  background:repeating-linear-gradient(90deg,var(--terra) 0,var(--terra) 8px,
+  var(--gold3) 8px,var(--gold3) 16px,var(--sage) 16px,var(--sage) 24px,
+  transparent 24px,transparent 28px)}
+.inp-wrap{display:flex;gap:9px;align-items:flex-end;background:var(--bg2);
+  border:2px solid var(--border2);border-radius:var(--rl);padding:9px 13px;transition:border-color .18s}
+.inp-wrap:focus-within{border-color:var(--terra);box-shadow:0 0 0 3px rgba(192,90,42,.1)}
+textarea#ci{flex:1;background:none;border:none;outline:none;color:var(--text);
+  font-family:var(--f);font-size:13.5px;resize:none;max-height:100px;line-height:1.5}
+textarea#ci::placeholder{color:var(--hint);font-style:italic}
+.send-btn{width:36px;height:36px;background:linear-gradient(135deg,var(--terra),var(--gold));
+  border:none;border-radius:10px;cursor:pointer;color:#FFF8EE;font-size:16px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 3px 10px rgba(192,90,42,.35);transition:all .15s}
+.send-btn:hover{opacity:.87;transform:scale(1.05)}
+.voice-btn{width:36px;height:36px;background:var(--bg3);border:1.5px solid var(--border2);
+  border-radius:10px;cursor:pointer;color:var(--muted);font-size:16px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.voice-btn:hover{border-color:var(--terra);color:var(--terra)}
+.voice-btn.listening{background:rgba(192,90,42,.15);border-color:var(--terra);
+  color:var(--terra);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,90,42,.4)}50%{box-shadow:0 0 0 6px rgba(192,90,42,0)}}
+.inp-foot{display:flex;justify-content:space-between;margin-top:6px}
+.inp-hint{font-size:10px;color:var(--hint);font-style:italic}
+.inp-tag{font-size:10px;color:var(--gold2);font-weight:700}
+
+/* TRIAGE */
+.sring-wrap{display:flex;justify-content:center;margin:12px 0}
+.sring{position:relative;width:110px;height:110px}
+.sring svg{width:110px;height:110px;transform:rotate(-90deg)}
+.sring-inner{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.snum{font-size:28px;font-weight:700;font-family:var(--fd)}
+.abox{border-radius:10px;padding:10px 13px;margin:10px 0}
+.abox.green{background:rgba(74,140,106,.07);border:1.5px solid rgba(74,140,106,.22)}
+.abox.amber{background:rgba(200,134,10,.08);border:1.5px solid rgba(168,109,8,.25)}
+.abox.orange{background:rgba(192,90,42,.07);border:1.5px solid rgba(192,90,42,.25)}
+.abox.red{background:rgba(160,40,40,.07);border:1.5px solid rgba(160,40,40,.25)}
+.atl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;margin-bottom:3px}
+.atxt{font-size:13px;line-height:1.5}
+.clist{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.citem{background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px}
+.ctop{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.cname{font-size:13px;font-weight:700;color:var(--text2)}
+.cpct{font-size:12px;font-weight:700;color:var(--terra)}
+.cbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.cfill{height:100%;background:linear-gradient(90deg,var(--terra2),var(--terra));border-radius:3px}
+.cdesc{font-size:12px;color:var(--muted);line-height:1.4}
+.flag-box{background:rgba(160,40,40,.05);border:1.5px solid rgba(160,40,40,.18);
+  border-radius:9px;padding:10px 13px;margin-top:10px}
+.flag-title{font-size:11px;font-weight:700;color:#A02828;margin-bottom:5px}
+.flag-list{list-style:none;font-size:12px;color:var(--text2)}
+.flag-list li{padding:2px 0}
+.flag-list li::before{content:"▸ ";color:#A02828}
+.home-box{background:rgba(74,140,106,.06);border:1.5px solid rgba(74,140,106,.2);
+  border-radius:9px;padding:10px 13px;margin-top:10px}
+.home-title{font-size:11px;font-weight:700;color:var(--sage2);margin-bottom:4px}
+
+/* BMI */
+.bmi-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+.bmi-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:11px;text-align:center}
+.bmi-val{font-size:20px;font-weight:700;font-family:var(--fd);margin-bottom:2px}
+.bmi-lbl{font-size:11px;color:var(--muted)}
+.bmi-meter{height:10px;border-radius:5px;overflow:hidden;margin:8px 0;
+  background:linear-gradient(90deg,#5B8DD9 0%,var(--sage) 38%,var(--gold) 68%,var(--terra) 100%)}
+.bmi-ptr{position:relative;height:16px}
+.bmi-arrow{position:absolute;transform:translateX(-50%);font-size:14px;transition:left .7s ease}
+.bmi-zones{display:flex;font-size:10px;color:var(--muted);justify-content:space-between;font-style:italic}
+
+/* FIRST AID */
+.aid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.aid-btn{background:var(--panel);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:14px 8px;text-align:center;cursor:pointer;transition:all .16s;font-family:var(--f);box-shadow:var(--sh)}
+.aid-btn:hover{border-color:var(--terra);transform:translateY(-3px)}
+.aid-ico{font-size:28px;margin-bottom:5px}
+.aid-name{font-size:12px;font-weight:700;color:var(--text2)}
+.aid-sub{font-size:10px;color:var(--muted);margin-top:2px;font-style:italic}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(58,36,16,.55);backdrop-filter:blur(5px);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border:2px solid var(--border2);border-radius:20px;
+  padding:24px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(58,36,16,.22);position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--terra),var(--gold3),var(--sage),var(--teal));
+  border-radius:20px 20px 0 0}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-family:var(--fd);font-size:18px;font-style:italic;color:var(--text)}
+.modal-x{background:none;border:1.5px solid var(--border);color:var(--muted);
+  width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center}
+.modal-body{font-size:13.5px;line-height:1.8;color:var(--text)}
+.modal-body h2{font-family:var(--fd);font-size:14px;color:var(--terra);margin:12px 0 4px}
+.modal-body strong{font-weight:700;color:var(--text2)}
+.modal-body ul{padding-left:16px;margin:4px 0}
+.emg-modal-bg{position:fixed;inset:0;background:rgba(58,36,16,.6);backdrop-filter:blur(5px);
+  z-index:600;display:none;align-items:center;justify-content:center;padding:16px}
+.emg-modal-bg.open{display:flex}
+.emg-modal{background:var(--panel);border:2px solid rgba(192,90,42,.35);
+  border-radius:20px;padding:24px;max-width:380px;width:100%;text-align:center}
+.emg-modal-title{font-family:var(--fd);font-size:17px;font-style:italic;color:var(--terra2);margin-bottom:14px}
+.emg-modal-nums{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.emg-modal-row{background:rgba(192,90,42,.07);border:1.5px solid rgba(192,90,42,.2);border-radius:10px;padding:11px}
+.emg-modal-num{font-family:var(--fd);font-size:24px;font-weight:600;color:var(--terra2);letter-spacing:3px}
+.emg-modal-lbl{font-size:10.5px;color:rgba(160,64,32,.6);margin-top:2px}
+.emg-close{margin-top:12px;padding:8px 22px;background:var(--bg2);
+  border:1.5px solid var(--border2);color:var(--text2);border-radius:9px;cursor:pointer;font-family:var(--f)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.chat-right{display:none}.two-col{grid-template-columns:320px 1fr}}
+@media(max-width:900px){.chat-left{display:none}.two-col{grid-template-columns:1fr}}
+@media(max-width:600px){
+  html,body{overflow:auto;height:auto}
+  .app{flex-direction:column;height:auto;padding-bottom:60px}
+  .sidenav{display:none}
+  .main{flex-direction:column;height:auto}
+  .page{min-height:calc(100vh - 58px - 60px)}
+  #pg-chat{flex-direction:column;height:calc(100vh - 58px - 60px)}
+  .chat-left,.chat-right{display:none}
+  .msgs{padding:12px}
+  .inp-area{position:sticky;bottom:0;z-index:50}
+  textarea#ci{font-size:16px;min-height:44px}
+  .inp-foot{display:none}
+  .tool-scroll{padding:14px 12px}
+  .two-col{grid-template-columns:1fr;gap:14px}
+  .aid-grid{grid-template-columns:repeat(3,1fr)}
+  .logo-tag{display:none}
+  .hdr-btns .hbtn:not(.sos){display:none}
+  .mobile-nav{display:flex !important}
+}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;
+  background:var(--panel);border-top:2px solid var(--border);z-index:300;overflow-x:auto}
+.mobile-nav::-webkit-scrollbar{display:none}
+.mn-btn{flex:1;min-width:50px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;cursor:pointer;border:none;background:none;
+  font-family:var(--f);padding:5px 3px;-webkit-tap-highlight-color:transparent}
+.mn-btn .ico{font-size:18px;line-height:1}
+.mn-btn .lbl{font-size:8px;font-weight:700;color:var(--muted)}
+.mn-btn.active{background:rgba(192,90,42,.08)}
+.mn-btn.active .lbl{color:var(--terra2)}
+.mn-sos{flex:1;min-width:50px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;cursor:pointer;border:none;
+  background:rgba(192,90,42,.07);font-family:var(--f);-webkit-tap-highlight-color:transparent}
+.mn-sos .ico{font-size:18px;line-height:1}
+.mn-sos .lbl{font-size:8px;font-weight:700;color:var(--terra2)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-av">&#128117;</div>
+    <div>
+      <div class="logo-name">Dadi Ki Dawai</div>
+      <div class="logo-tag">Your caring Dadi, always here for you &#127807;</div>
+    </div>
+  </div>
+  <div class="hdr-btns">
+    <button class="hbtn" id="darkBtn" onclick="toggleDark()" title="Dark mode">&#9790;</button>
+    <button class="hbtn" onclick="clearChat()">&#129529; Clear</button>
+    <button class="hbtn" onclick="openAbout()">&#8505; About</button>
+    <button class="hbtn sos" onclick="openEmg()">&#128680; Emergency</button>
+  </div>
+</header>
+
+<div class="app">
+  <nav class="sidenav">
+    <button class="sn-btn active" onclick="showPage('chat',this)"><span class="ico">&#128172;</span><span class="lbl">Chat</span></button>
+    <button class="sn-btn" onclick="showPage('triage',this)"><span class="ico">&#9889;</span><span class="lbl">Triage</span></button>
+    <button class="sn-btn" onclick="showPage('drug',this)"><span class="ico">&#128138;</span><span class="lbl">Drug</span></button>
+    <button class="sn-btn" onclick="showPage('lab',this)"><span class="ico">&#129514;</span><span class="lbl">Lab</span></button>
+    <button class="sn-btn" onclick="showPage('score',this)"><span class="ico">&#128202;</span><span class="lbl">Score</span></button>
+    <button class="sn-btn" onclick="showPage('bmi',this)"><span class="ico">&#9878;</span><span class="lbl">BMI</span></button>
+    <button class="sn-btn" onclick="showPage('aid',this)"><span class="ico">&#129657;</span><span class="lbl">Aid</span></button>
+    <div class="sn-sep"></div>
+    <button class="sn-sos" onclick="openEmg()"><span class="ico">&#128680;</span><span class="lbl">SOS</span></button>
+  </nav>
+
+  <div class="main">
+
+    <!-- CHAT PAGE -->
+    <div class="page active" id="pg-chat">
+      <aside class="chat-left">
+        <div>
+          <div class="slbl">Quick Topics</div>
+          <div class="tps">
+            <button class="tbtn" onclick="sq('Tell me about diabetes symptoms and how to manage it')">&#129656; Diabetes</button>
+            <button class="tbtn" onclick="sq('What is high blood pressure and how to control it?')">&#128147; Hypertension</button>
+            <button class="tbtn" onclick="sq('I have anxiety and stress. What should I do?')">&#129504; Anxiety</button>
+            <button class="tbtn" onclick="sq('I cannot sleep. What to do for insomnia?')">&#128564; Insomnia</button>
+            <button class="tbtn" onclick="sq('What is PCOS? Symptoms, diet and treatment')">&#127800; PCOS</button>
+            <button class="tbtn" onclick="sq('Heart attack warning signs. What to do immediately?')">&#10084; Heart Health</button>
+            <button class="tbtn" onclick="sq('Thyroid — difference between hypo and hyper?')">&#129419; Thyroid</button>
+            <button class="tbtn" onclick="sq('Signs of depression and when to see a doctor?')">&#128153; Depression</button>
+            <button class="tbtn" onclick="sq('Home remedies for back pain that actually work')">&#129460; Back Pain</button>
+            <button class="tbtn" onclick="sq('Skin problems — acne, eczema and rashes treatment')">&#129657; Skin</button>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Symptom Check</div>
+          <div class="sym-box">
+            <div class="sym-hint">Tell Dadi your symptoms — she will assess them</div>
+            <div class="sym-tags" id="symTags"></div>
+            <div class="sym-row">
+              <input class="sinp" id="symIn" placeholder="e.g. fever, headache..." onkeydown="if(event.key==='Enter')addSym()">
+              <button class="sadd" onclick="addSym()">+</button>
+            </div>
+            <button class="btn btn-terra" style="margin-top:8px;padding:8px;font-size:12px" onclick="qSymCheck()">&#9889; Analyse Symptoms</button>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Pain Location</div>
+          <div class="bmap">
+            <button class="ba-btn" onclick="sq('What causes head pain and migraines?')">&#129504; Head</button>
+            <button class="ba-btn" onclick="sq('When is chest pain dangerous?')">&#10084; Chest</button>
+            <button class="ba-btn" onclick="sq('What causes stomach pain and gas?')">&#129499; Stomach</button>
+            <button class="ba-btn" onclick="sq('How to relieve back pain at home?')">&#129460; Back</button>
+            <button class="ba-btn" onclick="sq('Joint pain and signs of arthritis?')">&#129461; Joints</button>
+            <button class="ba-btn" onclick="sq('Throat pain — tonsils or infection?')">&#128483; Throat</button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="chat-mid">
+        <div class="msgs" id="msgs">
+          <div class="welcome" id="welcome">
+            <div class="w-big">&#128117;</div>
+            <div class="w-title">"Come, sit down — what is troubling you?"</div>
+            <p class="w-sub">Dadi listens to everything. Fever, chest pain, stress, or a sad heart — ask anything and Dadi will guide you.</p>
+            <div class="w-disc">&#128220; <strong>Remember:</strong> Dadi gives home wisdom. For serious conditions, always visit a real doctor.</div>
+            <div class="chips">
+              <button class="chip" onclick="sq('I have had fever and headache for 2 days. What could it be?')">&#129298; Fever + Headache</button>
+              <button class="chip" onclick="sq('When should I urgently see a doctor?')">&#128680; When to see doctor?</button>
+              <button class="chip" onclick="sq('What does ibuprofen do and what are its side effects?')">&#128138; Medicine info</button>
+              <button class="chip" onclick="sq('I feel tired all the time. What could cause it?')">&#128564; Chronic fatigue</button>
+              <button class="chip" onclick="sq('My fasting blood sugar is 180. Is that dangerous?')">&#129656; Blood sugar</button>
+              <button class="chip" onclick="sq('What can I do at home for back pain?')">&#129460; Back pain</button>
+            </div>
+          </div>
+        </div>
+        <div class="inp-area">
+          <div class="inp-wrap">
+            <textarea id="ci" placeholder="Ask Dadi anything about your health..." rows="1" onkeydown="ke(event)" oninput="ar(this)"></textarea>
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input">&#127908;</button>
+            <button class="send-btn" onclick="send()">&#10148;</button>
+          </div>
+          <div class="inp-foot">
+            <span class="inp-hint">Enter to send &middot; Shift+Enter for new line</span>
+            <span class="inp-tag">&#10022; Powered by Groq &times; Llama 3.3 70B</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="chat-right">
+        <div>
+          <div class="slbl">Emergency</div>
+          <div class="emg-card">
+            <div class="emg-title">&#128680; Emergency Numbers</div>
+            <div class="emg-num">112</div><div class="emg-sub">Police / Ambulance / Fire</div>
+            <div class="emg-num" style="font-size:20px;margin-top:4px">108</div><div class="emg-sub">Ambulance Service</div>
+            <div class="emg-num" style="font-size:14px;letter-spacing:1px;margin-top:4px">9152987821</div>
+            <div class="emg-sub">iCall Mental Health</div>
+            <ul class="emg-list">
+              <li>Chest pain</li><li>Difficulty breathing</li>
+              <li>Stroke signs</li><li>Loss of consciousness</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Dadi's Reminders</div>
+          <div class="rem-card">
+            <div class="rem-title">
+              <span>&#9200; Daily Reminders</span>
+              <span style="font-size:10px;color:var(--hint);cursor:pointer;font-style:italic" onclick="resetReminders()">reset</span>
+            </div>
+            <div class="rem-list" id="remList"></div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+              <input class="rem-inp" id="remTxt" placeholder="e.g. Take BP medicine..." style="width:100%" onkeydown="if(event.key==='Enter')addReminder()">
+              <div style="display:flex;gap:5px;align-items:center">
+                <span style="font-size:10px;color:var(--teal2);font-weight:700;flex-shrink:0">&#9200; Time:</span>
+                <input class="rem-time-inp" id="remTime" type="time">
+                <button class="rem-add-btn" onclick="addReminder()">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Hospitals Nearby</div>
+          <div class="hosp-card">
+            <div style="color:var(--teal2);font-weight:700;font-size:12px;margin-bottom:6px">&#127973; Find Nearby Hospitals</div>
+            <p style="font-size:10.5px;color:var(--muted);font-style:italic">Opens Google Maps with hospitals near you</p>
+            <button class="hosp-btn" onclick="findHospitals()">&#128205; Open Hospitals on Google Maps</button>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Dadi's Health Tip</div>
+          <div class="tip-card">
+            <div class="tip-title">&#127807; Tip of the Day</div>
+            <div class="tip-body" id="tipTxt"></div>
+            <button class="tip-next" onclick="nextTip()">&#10022; Next tip from Dadi</button>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Normal Ranges</div>
+          <div class="ranges-card">
+            <div class="rrow"><span class="rlbl">Blood Pressure</span><span class="rval">120/80</span></div>
+            <div class="rrow"><span class="rlbl">Heart Rate</span><span class="rval">60-100 bpm</span></div>
+            <div class="rrow"><span class="rlbl">Body Temp</span><span class="rval">36.1-37.2C</span></div>
+            <div class="rrow"><span class="rlbl">Blood Sugar</span><span class="rval">70-99 mg/dL</span></div>
+            <div class="rrow"><span class="rlbl">HbA1c</span><span class="rval">&lt;5.7%</span></div>
+            <div class="rrow"><span class="rlbl">Hemoglobin M/F</span><span class="rval">13.5-17 / 12-15</span></div>
+            <div class="rrow"><span class="rlbl">TSH</span><span class="rval">0.4-4.0</span></div>
+            <div class="rrow"><span class="rlbl">BMI normal</span><span class="rval">18.5-24.9</span></div>
+            <div class="rrow"><span class="rlbl">SpO2</span><span class="rval">95-100%</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- TRIAGE PAGE -->
+    <div class="page" id="pg-triage">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#9889; AI Triage</div>
+        <div class="tool-sub">Tell Dadi your symptoms — urgency score, possible causes, and what to do next.</div>
+        <div class="two-col">
+          <div class="form-card">
+            <div>
+              <div class="fl">Your Symptoms</div>
+              <div class="sym-tags" id="triTags" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px;margin-bottom:7px"></div>
+              <div class="sym-row">
+                <input class="sinp" id="triIn" placeholder="e.g. fever, chest pain..." onkeydown="if(event.key==='Enter')addTriSym()">
+                <button class="sadd" onclick="addTriSym()">+</button>
+              </div>
+            </div>
+            <div><div class="fl">How long?</div>
+              <select class="fi" id="tri-dur">
+                <option>Just started (hours ago)</option><option>1-2 days</option>
+                <option>3-7 days</option><option>More than a week</option><option>Chronic</option>
+              </select>
+            </div>
+            <div><div class="fl">Age Group</div>
+              <select class="fi" id="tri-age">
+                <option>Child (under 12)</option><option>Teen (12-18)</option>
+                <option>Adult (18-60)</option><option>Senior (60+)</option>
+              </select>
+            </div>
+            <div><div class="fl">Existing Conditions</div>
+              <input class="fi" id="tri-cond" placeholder="e.g. diabetes, none">
+            </div>
+            <button class="btn btn-terra" onclick="runTriage()">&#9889; Run Dadi's Triage</button>
+          </div>
+          <div class="result-card" id="triCard">
+            <div class="rph" id="triPH"><div class="rph-ico">&#9889;</div><div class="rph-txt">Add symptoms and click Run Triage</div></div>
+            <div id="triResult" style="display:none"></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- DRUG PAGE -->
+    <div class="page" id="pg-drug">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#128138; Medicine Information</div>
+        <div class="tool-sub">Type any medicine name — Dadi will explain its uses, side effects, and who should avoid it.</div>
+        <div class="two-col">
+          <div class="form-card">
+            <div><div class="fl">Medicine Name</div>
+              <input class="fi" id="drugIn" placeholder="e.g. Paracetamol, Metformin..." onkeydown="if(event.key==='Enter')runDrug()">
+            </div>
+            <button class="btn btn-terra" onclick="runDrug()">&#128138; Look Up Medicine</button>
+            <div>
+              <div class="fl" style="margin-bottom:8px">Common Medicines</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Paracetamol')">Paracetamol</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Ibuprofen')">Ibuprofen</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Metformin')">Metformin</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Amlodipine')">Amlodipine</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Omeprazole')">Omeprazole</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Azithromycin')">Azithromycin</button>
+                <button class="chip" style="font-size:11px;padding:5px 10px" onclick="qDrug('Cetirizine')">Cetirizine</button>
+              </div>
+            </div>
+          </div>
+          <div class="result-card" id="drugResult">
+            <div class="rph"><div class="rph-ico">&#128138;</div><div class="rph-txt">Type a medicine name</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- LAB PAGE -->
+    <div class="page" id="pg-lab">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#129514; Lab Result Interpreter</div>
+        <div class="tool-sub">Paste your lab values — Dadi will explain what each result means in plain simple English.</div>
+        <div class="two-col">
+          <div class="form-card">
+            <div><div class="fl">Paste Your Lab Values</div>
+              <textarea class="fi" id="labIn" placeholder="e.g. Hemoglobin: 10.2&#10;Blood Sugar: 180&#10;TSH: 6.5"></textarea>
+            </div>
+            <button class="btn btn-teal" onclick="runLab()">&#128300; Interpret My Results</button>
+          </div>
+          <div class="result-card" id="labResult">
+            <div class="rph"><div class="rph-ico">&#129514;</div><div class="rph-txt">Paste your lab values</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- SCORE PAGE -->
+    <div class="page" id="pg-score">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#128202; Your Health Score</div>
+        <div class="tool-sub">Tell Dadi about your lifestyle — she will give you a personal health score.</div>
+        <div class="two-col">
+          <div class="form-card">
+            <div class="fi-row">
+              <div><div class="fl">Age</div><input class="fi" id="hs-age" type="number" placeholder="25"></div>
+              <div><div class="fl">Sex</div><select class="fi" id="hs-sex"><option value="male">Male</option><option value="female">Female</option></select></div>
+            </div>
+            <div><div class="fl">Exercise</div><select class="fi" id="hs-ex"><option>Never</option><option>1-2 days/week</option><option>3-4 days/week</option><option>Daily</option></select></div>
+            <div><div class="fl">Sleep</div><select class="fi" id="hs-sl"><option>Less than 5 hrs</option><option>5-6 hrs</option><option>7-8 hrs</option><option>9+ hrs</option></select></div>
+            <div><div class="fl">Diet</div><select class="fi" id="hs-di"><option>Poor (junk food)</option><option>Fair (mixed)</option><option>Good (home food)</option><option>Excellent</option></select></div>
+            <div><div class="fl">Water</div><select class="fi" id="hs-wa"><option>Less than 4 glasses</option><option>4-6 glasses</option><option>7-8 glasses</option><option>8+ glasses</option></select></div>
+            <div><div class="fl">Stress</div><select class="fi" id="hs-st"><option>Low</option><option>Moderate</option><option>High</option><option>Very High</option></select></div>
+            <div class="fi-row">
+              <div><div class="fl">Smoking</div><select class="fi" id="hs-sm"><option>No</option><option>Occasionally</option><option>Daily</option></select></div>
+              <div><div class="fl">Alcohol</div><select class="fi" id="hs-al"><option>No</option><option>Occasionally</option><option>Weekly</option><option>Daily</option></select></div>
+            </div>
+            <button class="btn btn-gold" onclick="runScore()">&#128202; Calculate Score</button>
+          </div>
+          <div class="result-card" id="scoreResult">
+            <div class="rph"><div class="rph-ico">&#128202;</div><div class="rph-txt">Fill in your details</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- BMI PAGE -->
+    <div class="page" id="pg-bmi">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#9878; BMI Calculator</div>
+        <div class="tool-sub">Tell Dadi your height and weight — she will calculate your BMI and daily calorie needs.</div>
+        <div class="two-col">
+          <div class="form-card">
+            <div class="fi-row">
+              <div><div class="fl">Height (cm)</div><input class="fi" id="bmi-h" type="number" placeholder="170"></div>
+              <div><div class="fl">Weight (kg)</div><input class="fi" id="bmi-w" type="number" placeholder="70"></div>
+            </div>
+            <div class="fi-row">
+              <div><div class="fl">Age</div><input class="fi" id="bmi-a" type="number" placeholder="25"></div>
+              <div><div class="fl">Sex</div><select class="fi" id="bmi-s"><option value="male">Male</option><option value="female">Female</option></select></div>
+            </div>
+            <button class="btn btn-terra" onclick="runBMI()">&#9878; Calculate BMI</button>
+          </div>
+          <div class="result-card" id="bmiResult">
+            <div class="rph"><div class="rph-ico">&#9878;</div><div class="rph-txt">Enter height and weight</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- AID PAGE -->
+    <div class="page" id="pg-aid">
+      <div class="tool-page"><div class="tool-scroll">
+        <div class="tool-title">&#129657; First Aid Guide</div>
+        <div class="tool-sub">What to do in an emergency — step-by-step guidance. Tap any situation.</div>
+        <div class="aid-grid">
+          <button class="aid-btn" onclick="runAid('burns minor and major')"><div class="aid-ico">&#128293;</div><div class="aid-name">Burns</div></button>
+          <button class="aid-btn" onclick="runAid('choking Heimlich manoeuvre')"><div class="aid-ico">&#128168;</div><div class="aid-name">Choking</div></button>
+          <button class="aid-btn" onclick="runAid('CPR cardiopulmonary resuscitation')"><div class="aid-ico">&#10084;</div><div class="aid-name">CPR</div></button>
+          <button class="aid-btn" onclick="runAid('severe bleeding cuts')"><div class="aid-ico">&#129656;</div><div class="aid-name">Bleeding</div></button>
+          <button class="aid-btn" onclick="runAid('suspected fracture broken bone')"><div class="aid-ico">&#129460;</div><div class="aid-name">Broken Bone</div></button>
+          <button class="aid-btn" onclick="runAid('fainting loss of consciousness')"><div class="aid-ico">&#128565;</div><div class="aid-name">Fainting</div></button>
+          <button class="aid-btn" onclick="runAid('severe allergic reaction anaphylaxis')"><div class="aid-ico">&#129301;</div><div class="aid-name">Allergy</div></button>
+          <button class="aid-btn" onclick="runAid('electric shock electrocution')"><div class="aid-ico">&#9889;</div><div class="aid-name">Electric Shock</div></button>
+          <button class="aid-btn" onclick="runAid('suspected stroke FAST method')"><div class="aid-ico">&#129504;</div><div class="aid-name">Stroke</div></button>
+          <button class="aid-btn" onclick="runAid('snake bite venomous')"><div class="aid-ico">&#128013;</div><div class="aid-name">Snake Bite</div></button>
+          <button class="aid-btn" onclick="runAid('near drowning')"><div class="aid-ico">&#127754;</div><div class="aid-name">Drowning</div></button>
+          <button class="aid-btn" onclick="runAid('heat stroke exhaustion')"><div class="aid-ico">&#127777;</div><div class="aid-name">Heat Stroke</div></button>
+        </div>
+        <div id="aidResult" style="display:none"><div class="result-card" id="aidContent"></div></div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <button class="mn-btn active" onclick="showPage('chat',this,true)" data-page="chat"><span class="ico">&#128172;</span><span class="lbl">Chat</span></button>
+  <button class="mn-btn" onclick="showPage('triage',this,true)" data-page="triage"><span class="ico">&#9889;</span><span class="lbl">Triage</span></button>
+  <button class="mn-btn" onclick="showPage('drug',this,true)" data-page="drug"><span class="ico">&#128138;</span><span class="lbl">Drug</span></button>
+  <button class="mn-btn" onclick="showPage('lab',this,true)" data-page="lab"><span class="ico">&#129514;</span><span class="lbl">Lab</span></button>
+  <button class="mn-btn" onclick="showPage('score',this,true)" data-page="score"><span class="ico">&#128202;</span><span class="lbl">Score</span></button>
+  <button class="mn-btn" onclick="showPage('bmi',this,true)" data-page="bmi"><span class="ico">&#9878;</span><span class="lbl">BMI</span></button>
+  <button class="mn-btn" onclick="showPage('aid',this,true)" data-page="aid"><span class="ico">&#129657;</span><span class="lbl">Aid</span></button>
+  <button class="mn-sos" onclick="openEmg()"><span class="ico">&#128680;</span><span class="lbl">SOS</span></button>
+</nav>
+
+<div class="emg-modal-bg" id="emgModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="emg-modal">
+    <div class="emg-modal-title">&#128680; Emergency Numbers India</div>
+    <div class="emg-modal-nums">
+      <div class="emg-modal-row"><div class="emg-modal-num">112</div><div class="emg-modal-lbl">Police / Ambulance / Fire</div></div>
+      <div class="emg-modal-row"><div class="emg-modal-num">108</div><div class="emg-modal-lbl">Ambulance Service</div></div>
+      <div class="emg-modal-row"><div class="emg-modal-num">9152987821</div><div class="emg-modal-lbl">iCall Mental Health</div></div>
+      <div class="emg-modal-row"><div class="emg-modal-num">1800-599-0019</div><div class="emg-modal-lbl">NIMHANS (Free)</div></div>
+    </div>
+    <button class="emg-close" onclick="document.getElementById('emgModal').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="mTitle"></div><button class="modal-x" onclick="closeModal()">X</button></div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+// ── DARK MODE ──
+var darkMode = localStorage.getItem('dadi_dark') === '1';
+function applyDark() {
+  document.body.classList.toggle('dark', darkMode);
+  var btn = document.getElementById('darkBtn');
+  if (btn) btn.textContent = darkMode ? '☀' : '☾';
+  localStorage.setItem('dadi_dark', darkMode ? '1' : '0');
+}
+function toggleDark() { darkMode = !darkMode; applyDark(); }
+applyDark();
+
+// ── PERSISTENT CHAT (localStorage) ──
+function saveChatHistory() {
+  var msgs = document.getElementById('msgs');
+  if (!msgs) return;
+  try { localStorage.setItem('dadi_chat', msgs.innerHTML); } catch(e) {}
+}
+function loadChatHistory() {
+  try {
+    var saved = localStorage.getItem('dadi_chat');
+    if (saved && saved.length > 100) {
+      var msgs = document.getElementById('msgs');
+      msgs.innerHTML = saved;
+      // Remove action buttons (they won't work after reload)
+      msgs.querySelectorAll('.msg-actions').forEach(function(el) { el.style.display='none'; });
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+// Clear old chat on fresh page load (new tab/visit)
+// Use sessionStorage to detect same-tab refresh vs new visit
+var isSameSession = sessionStorage.getItem('dadi_session');
+if (isSameSession) {
+  // Same tab refresh - restore chat
+  var chatLoaded = loadChatHistory();
+  if (chatLoaded) {
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+  }
+} else {
+  // New visit - clear everything and start fresh
+  try { localStorage.removeItem('dadi_chat'); } catch(e) {}
+  sessionStorage.setItem('dadi_session', '1');
+}
+
+// ── COPY & DOWNLOAD ──
+function copyMsg(bid) {
+  var el = document.getElementById(bid);
+  if (!el) return;
+  var text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = el.parentElement.querySelector('.msg-act-btn');
+    if (btn) { btn.textContent = '✓'; setTimeout(function(){ btn.textContent = '📋'; }, 1500); }
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+}
+function downloadMsg(bid) {
+  var el = document.getElementById(bid);
+  if (!el) return;
+  var text = 'Dadi Ki Dawai - Health Advice\n' + new Date().toLocaleDateString() + '\n\n' + (el.innerText || el.textContent);
+  var blob = new Blob([text], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dadi-advice.txt';
+  a.click();
+}
+
+// ── VOICE INPUT ──
+var recognition = null;
+var listening = false;
+function initVoice() {
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) return null;
+  var r = new SpeechRec();
+  r.continuous = false;
+  r.interimResults = true;
+  r.lang = 'en-IN';
+  r.onstart = function() {
+    listening = true;
+    var btn = document.getElementById('voiceBtn');
+    if (btn) { btn.classList.add('listening'); btn.textContent = '⏹'; }
+  };
+  r.onresult = function(e) {
+    var transcript = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById('ci').value = transcript;
+    ar(document.getElementById('ci'));
+  };
+  r.onend = function() {
+    listening = false;
+    var btn = document.getElementById('voiceBtn');
+    if (btn) { btn.classList.remove('listening'); btn.textContent = '🎤'; }
+    // Auto-send if we got something
+    var val = document.getElementById('ci').value.trim();
+    if (val) send();
+  };
+  r.onerror = function() {
+    listening = false;
+    var btn = document.getElementById('voiceBtn');
+    if (btn) { btn.classList.remove('listening'); btn.textContent = '🎤'; }
+  };
+  return r;
+}
+function toggleVoice() {
+  var btn = document.getElementById('voiceBtn');
+  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+    alert('Voice input is not supported in this browser. Try Chrome or Safari.');
+    return;
+  }
+  if (listening) {
+    if (recognition) recognition.stop();
+    return;
+  }
+  recognition = initVoice();
+  if (recognition) recognition.start();
+}
+
+// ── PWA SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
+  });
+}
+
+// TIPS
+var TIPS = [
+  "Drink 8-10 glasses of water daily. Prevents fatigue, headaches and kidney issues!",
+  "Walk 30 minutes every day. Protects against heart disease, diabetes and depression!",
+  "Eat colourful vegetables daily. Different colours mean different vitamins. Food is medicine!",
+  "Sleep 7-9 hours every night. Less sleep causes weight gain and weakens the heart.",
+  "10 minutes of deep breathing daily reduces stress and cortisol. Simple and powerful!",
+  "15 minutes of morning sunlight gives Vitamin D and improves sleep. Free medicine!",
+  "Wash hands for 20 seconds with soap. Prevents 80% of infections!",
+  "Check blood pressure regularly. High BP silently damages heart and kidneys.",
+  "Quitting smoking reduces heart disease risk by 50% within one year!",
+  "Turmeric milk at night reduces joint pain and helps you sleep better.",
+  "Warm lemon water every morning helps digestion and makes skin glow.",
+  "Laugh out loud every day. Laughter boosts immunity and reduces stress hormones!"
+];
+var tipIdx = new Date().getDate() % TIPS.length;
+function setTip() { document.getElementById('tipTxt').textContent = TIPS[tipIdx]; }
+setTip();
+function nextTip() { tipIdx = (tipIdx + 1) % TIPS.length; setTip(); }
+
+// REMINDERS
+var defaultRems = [
+  {id:1, txt:'Take morning medicines', time:'08:00', done:false},
+  {id:2, txt:'Check blood pressure', time:'09:00', done:false},
+  {id:3, txt:'Drink a glass of water', time:'10:00', done:false},
+  {id:4, txt:'Take evening medicines', time:'18:00', done:false},
+  {id:5, txt:'Go for a short walk', time:'17:00', done:false}
+];
+var reminders = [];
+try { reminders = JSON.parse(localStorage.getItem('dadi_rem') || '[]'); } catch(e) { reminders = []; }
+if (reminders.length === 0) { reminders = JSON.parse(JSON.stringify(defaultRems)); saveRem(); }
+function saveRem() { try { localStorage.setItem('dadi_rem', JSON.stringify(reminders)); } catch(e) {} }
+function renderRem() {
+  var el = document.getElementById('remList');
+  if (!el) return;
+  if (reminders.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--hint);font-style:italic;text-align:center;padding:8px">No reminders. Add one below!</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < reminders.length; i++) {
+    var r = reminders[i];
+    html += '<div class="rem-item' + (r.done ? ' done' : '') + '">';
+    html += '<div class="rem-cb' + (r.done ? ' checked' : '') + '" onclick="toggleRem(' + r.id + ')">' + (r.done ? '&#10003;' : '') + '</div>';
+    html += '<div class="rem-txt">' + esc(r.txt) + '</div>';
+    if (r.time) html += '<div class="rem-time">' + r.time + '</div>';
+    html += '<button class="rem-del" onclick="delRem(' + r.id + ')">&#215;</button>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+function toggleRem(id) {
+  for (var i = 0; i < reminders.length; i++) {
+    if (reminders[i].id === id) { reminders[i].done = !reminders[i].done; break; }
+  }
+  saveRem(); renderRem();
+}
+function delRem(id) {
+  reminders = reminders.filter(function(r) { return r.id !== id; });
+  saveRem(); renderRem();
+}
+function addReminder() {
+  var txt = document.getElementById('remTxt').value.trim();
+  var time = document.getElementById('remTime').value;
+  if (!txt) { alert('Please enter a reminder!'); return; }
+  reminders.push({id: Date.now(), txt: txt, time: time, done: false});
+  document.getElementById('remTxt').value = '';
+  document.getElementById('remTime').value = '';
+  saveRem(); renderRem();
+}
+function resetReminders() {
+  if (!confirm('Reset to defaults?')) return;
+  reminders = JSON.parse(JSON.stringify(defaultRems));
+  saveRem(); renderRem();
+}
+renderRem();
+
+// HOSPITALS
+function findHospitals() {
+  window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
+}
+
+// PAGE SWITCHING
+function showPage(id, el, isMobile) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  var snBtns = document.querySelectorAll('.sn-btn');
+  for (var i = 0; i < snBtns.length; i++) snBtns[i].classList.remove('active');
+  var mnBtns = document.querySelectorAll('.mn-btn');
+  for (var i = 0; i < mnBtns.length; i++) mnBtns[i].classList.remove('active');
+  document.getElementById('pg-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  var mb = document.querySelector('.mn-btn[data-page="' + id + '"]');
+  if (mb) mb.classList.add('active');
+  if (isMobile) window.scrollTo(0, 0);
+}
+
+// MODALS
+function openModal(t, h) {
+  document.getElementById('mTitle').textContent = t;
+  document.getElementById('mBody').innerHTML = h;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function openEmg() { document.getElementById('emgModal').classList.add('open'); }
+function openAbout() {
+  openModal('About Dadi Ki Dawai',
+    '<p style="margin-bottom:12px">Free AI health companion powered by <strong>Llama 3.3 70B</strong> on <strong>Groq</strong>.</p>' +
+    '<h2>Features</h2><ul>' +
+    '<li>Chat with Dadi</li><li>AI Triage card</li><li>Medicine info</li>' +
+    '<li>Lab results interpreter</li><li>Health score</li><li>BMI calculator</li>' +
+    '<li>12 first aid guides</li><li>Hospitals nearby</li><li>Daily reminders</li>' +
+    '</ul><p style="font-size:11px;color:var(--muted);margin-top:12px;font-style:italic">' +
+    'For serious conditions always visit a real doctor. Made with love for India.</p>'
+  );
+}
+
+// HELPERS
+function esc(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmt(t) {
+  if (!t) return '';
+  t = t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  t = t.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  t = t.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  t = t.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/(<li>[^<]*<\/li>)+/g, function(m) { return '<ul>' + m + '</ul>'; });
+  t = t.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/Green circle/g, '<span style="color:var(--sage2);font-weight:700">&#127922;</span>');
+  t = t.replace(/Yellow circle/g, '<span style="color:var(--gold2);font-weight:700">&#127921;</span>');
+  t = t.replace(/Red circle/g, '<span style="color:var(--terra2);font-weight:700">&#128308;</span>');
+  t = t.replace(/\[DONE:[^\]]*\]/g, '');
+  t = t.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+  return t;
+}
+function setRes(id, html) { document.getElementById(id).innerHTML = '<div class="rc">' + html + '</div>'; }
+function setLoad(id, msg) {
+  document.getElementById(id).innerHTML =
+    '<div class="rc-load"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>' + msg + '</div>';
+}
+
+// SYMPTOMS
+var syms = [], triSyms = [];
+function addSym() {
+  var inp = document.getElementById('symIn'), v = inp.value.trim();
+  if (!v || syms.indexOf(v) >= 0) return;
+  syms.push(v); inp.value = ''; renderSyms();
+}
+function removeSym(s) { syms = syms.filter(function(x){return x!==s;}); renderSyms(); }
+function renderSyms() {
+  var html = '';
+  for (var i = 0; i < syms.length; i++) {
+    html += '<div class="stag">' + esc(syms[i]) + '<button onclick="removeSym(\'' + esc(syms[i]) + '\')">&#215;</button></div>';
+  }
+  document.getElementById('symTags').innerHTML = html;
+}
+function addTriSym() {
+  var inp = document.getElementById('triIn'), v = inp.value.trim();
+  if (!v || triSyms.indexOf(v) >= 0) return;
+  triSyms.push(v); inp.value = ''; renderTriSyms();
+}
+function removeTriSym(s) { triSyms = triSyms.filter(function(x){return x!==s;}); renderTriSyms(); }
+function renderTriSyms() {
+  var html = '';
+  for (var i = 0; i < triSyms.length; i++) {
+    html += '<div class="stag">' + esc(triSyms[i]) + '<button onclick="removeTriSym(\'' + esc(triSyms[i]) + '\')">&#215;</button></div>';
+  }
+  document.getElementById('triTags').innerHTML = html;
+}
+function qSymCheck() {
+  if (!syms.length) { alert('Please add at least one symptom!'); return; }
+  sq('I have these symptoms: ' + syms.join(', ') + '. What could this be?');
+  showPage('chat', document.querySelector('.sn-btn'));
+}
+
+// TRIAGE
+async function runTriage() {
+  if (!triSyms.length) { alert('Please add at least one symptom!'); return; }
+  document.getElementById('triPH').style.display = 'none';
+  document.getElementById('triResult').style.display = 'block';
+  setLoad('triResult', 'Dadi is analysing your symptoms...');
+  var all = triSyms.slice();
+  all.push('Duration: ' + document.getElementById('tri-dur').value);
+  all.push('Age: ' + document.getElementById('tri-age').value);
+  var cond = document.getElementById('tri-cond').value;
+  if (cond) all.push(cond);
+  try {
+    var r = await fetch('/triage', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symptoms:all})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    renderTriage(d.triage);
+  } catch(e) {
+    document.getElementById('triResult').innerHTML = '<div style="color:var(--terra2);padding:12px">Error: ' + esc(e.message) + '</div>';
+  }
+}
+function renderTriage(t) {
+  var s = t.urgency_score || 5;
+  var cmap = {green:'var(--sage2)', amber:'var(--gold2)', orange:'var(--terra)', red:'#A02828'};
+  var col = cmap[t.urgency_color] || 'var(--terra)';
+  var circ = 2 * Math.PI * 45;
+  var dash = circ - (s / 10) * circ;
+  var html = '<div style="text-align:center;margin-bottom:12px">';
+  html += '<div class="sring-wrap"><div class="sring">';
+  html += '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="var(--border)" stroke-width="8"/>';
+  html += '<circle cx="50" cy="50" r="45" fill="none" stroke="' + col + '" stroke-width="8" stroke-dasharray="' + circ + '" stroke-dashoffset="' + dash + '" stroke-linecap="round"/></svg>';
+  html += '<div class="sring-inner"><span class="snum" style="color:' + col + '">' + s + '</span><span style="font-size:10px;color:var(--muted)">/10</span></div>';
+  html += '</div></div>';
+  html += '<div style="font-size:15px;font-weight:700;color:' + col + ';font-family:var(--fd)">' + esc(t.urgency_label || '') + '</div></div>';
+  html += '<div class="abox ' + (t.urgency_color || 'amber') + '">';
+  html += '<div class="atl" style="color:' + col + '">' + esc(t.action_timeline || '') + '</div>';
+  html += '<div class="atxt">' + esc(t.action || '') + '</div></div>';
+  if (t.conditions && t.conditions.length) {
+    html += '<div style="margin:12px 0"><div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px">Possible Causes</div><div class="clist">';
+    for (var i = 0; i < t.conditions.length; i++) {
+      var c = t.conditions[i];
+      html += '<div class="citem"><div class="ctop"><span class="cname">' + esc(c.name) + '</span><span class="cpct">' + c.likelihood + '%</span></div>';
+      html += '<div class="cbar"><div class="cfill" style="width:' + c.likelihood + '%"></div></div>';
+      html += '<div class="cdesc">' + esc(c.description) + '</div></div>';
+    }
+    html += '</div></div>';
+  }
+  if (t.red_flags && t.red_flags.length) {
+    html += '<div class="flag-box"><div class="flag-title">Go to ER immediately if you also get:</div><ul class="flag-list">';
+    for (var i = 0; i < t.red_flags.length; i++) html += '<li>' + esc(t.red_flags[i]) + '</li>';
+    html += '</ul></div>';
+  }
+  if (t.home_care) {
+    html += '<div class="home-box"><div class="home-title">What to do at home:</div><div style="font-size:12px;color:var(--text2)">' + esc(t.home_care) + '</div></div>';
+  }
+  html += '<p style="font-size:10px;color:var(--hint);text-align:center;margin-top:12px;font-style:italic">Not a diagnosis. Always consult a real doctor.</p>';
+  document.getElementById('triResult').innerHTML = html;
+}
+
+// DRUG
+async function runDrug() {
+  var n = document.getElementById('drugIn').value.trim();
+  if (!n) { alert('Please enter a medicine name!'); return; }
+  setLoad('drugResult', 'Looking up ' + n + '...');
+  try {
+    var r = await fetch('/drug', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({drug:n})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    setRes('drugResult', fmt(d.reply));
+  } catch(e) { setRes('drugResult', '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>'); }
+}
+function qDrug(n) { document.getElementById('drugIn').value = n; runDrug(); }
+
+// LAB
+async function runLab() {
+  var t = document.getElementById('labIn').value.trim();
+  if (!t) { alert('Please paste your lab values!'); return; }
+  setLoad('labResult', 'Dadi is reading your report...');
+  try {
+    var r = await fetch('/lab', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:t})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    setRes('labResult', fmt(d.reply));
+  } catch(e) { setRes('labResult', '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>'); }
+}
+
+// SCORE
+async function runScore() {
+  var age = document.getElementById('hs-age').value;
+  if (!age) { alert('Please enter your age!'); return; }
+  setLoad('scoreResult', 'Dadi is calculating your score...');
+  try {
+    var r = await fetch('/score', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+      age:age, sex:document.getElementById('hs-sex').value,
+      exercise:document.getElementById('hs-ex').value, sleep:document.getElementById('hs-sl').value,
+      diet:document.getElementById('hs-di').value, water:document.getElementById('hs-wa').value,
+      stress:document.getElementById('hs-st').value, smoking:document.getElementById('hs-sm').value,
+      alcohol:document.getElementById('hs-al').value
+    })});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    setRes('scoreResult', fmt(d.reply));
+  } catch(e) { setRes('scoreResult', '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>'); }
+}
+
+// BMI
+async function runBMI() {
+  var h = document.getElementById('bmi-h').value;
+  var w = document.getElementById('bmi-w').value;
+  var a = document.getElementById('bmi-a').value;
+  if (!h || !w || !a) { alert('Please fill in all fields!'); return; }
+  try {
+    var r = await fetch('/bmi', {method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({height:h, weight:w, age:a, sex:document.getElementById('bmi-s').value})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    var cols = {'Underweight':'#5B8DD9','Normal weight':'var(--sage2)','Overweight':'var(--gold2)','Obese':'var(--terra2)'};
+    var col = cols[d.category] || 'var(--text)';
+    var pct = Math.min(Math.max(((d.bmi - 10) / 40) * 100, 0), 100);
+    var msg = '', msgBg = '', msgBorder = '';
+    var sev = d.severity || 'normal';
+    if (sev === 'normal') {
+      msg = 'Your weight is in the ideal range (' + d.ideal_low + '-' + d.ideal_high + ' kg). Dadi is proud of you! Keep it up.';
+      msgBg='rgba(74,140,106,.08)'; msgBorder='rgba(74,140,106,.25)';
+    } else if (sev === 'moderate') {
+      msg = '&#9888; ' + d.diff + ' kg above ideal. BMI ' + d.bmi + ' is Obese Class I. Please see a doctor for a proper diet plan. Start with daily 30-min walks and cut out maida, sugar and fried food.';
+      msgBg='rgba(200,134,10,.08)'; msgBorder='rgba(200,134,10,.3)';
+    } else if (sev === 'high') {
+      msg = '&#128680; ' + d.diff + ' kg above ideal. BMI ' + d.bmi + ' is Obese Class II — this is medically serious. Please consult a doctor immediately. Risk of diabetes, heart disease and joint damage is high.';
+      msgBg='rgba(192,90,42,.1)'; msgBorder='rgba(192,90,42,.4)';
+    } else if (sev === 'very_high') {
+      msg = '&#128308; BMI ' + d.bmi + ' is Obese Class III (Morbid Obesity) — this is a medical emergency. Please see a doctor urgently. This level of obesity seriously threatens your heart, kidneys, liver and lifespan.';
+      msgBg='rgba(180,30,30,.08)'; msgBorder='rgba(180,30,30,.35)';
+    } else if (sev === 'low') {
+      msg = '&#9888; ' + Math.abs(d.diff) + ' kg below ideal. You are underweight. Eat more nutritious home food — dal, rice, ghee, nuts, milk. See a doctor if you are losing weight without trying.';
+      msgBg='rgba(200,134,10,.08)'; msgBorder='rgba(200,134,10,.3)';
+    } else if (sev === 'very_low') {
+      msg = '&#128308; BMI ' + d.bmi + ' is severely underweight — this needs medical attention immediately. Please see a doctor.';
+      msgBg='rgba(180,30,30,.08)'; msgBorder='rgba(180,30,30,.35)';
+    } else if (d.diff > 0 && d.diff <= 2) {
+      msg = 'You are only ' + d.diff + ' kg above ideal — almost there! A little more walking will do it.';
+      msgBg='rgba(200,134,10,.08)'; msgBorder='rgba(200,134,10,.3)';
+    } else {
+      msg = d.diff + ' kg above ideal. Healthy home food and daily 30-min walks will help.';
+      msgBg='rgba(200,134,10,.08)'; msgBorder='rgba(200,134,10,.3)';
+    }
+    var html = '<div class="rc">';
+    html += '<div class="bmi-cards">';
+    html += '<div class="bmi-card"><div class="bmi-val" style="color:' + col + '">' + d.bmi + '</div><div class="bmi-lbl">Your BMI</div></div>';
+    html += '<div class="bmi-card"><div class="bmi-val" style="color:' + col + ';font-size:15px">' + d.category + '</div><div class="bmi-lbl">Category</div></div>';
+    html += '<div class="bmi-card"><div class="bmi-val" style="font-size:15px">' + d.ideal_low + '-' + d.ideal_high + '</div><div class="bmi-lbl">Ideal (kg)</div></div>';
+    html += '</div>';
+    html += '<div class="bmi-meter"></div>';
+    html += '<div class="bmi-ptr"><span class="bmi-arrow" style="left:' + pct + '%">&#9650;</span></div>';
+    html += '<div class="bmi-zones"><span>Low</span><span>Normal</span><span>High</span><span>Obese</span></div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;background:var(--bg2);border-radius:10px;padding:14px;border:1.5px solid var(--border)">';
+    html += '<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Resting calories</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:var(--sage2)">' + d.bmr + ' <span style="font-size:11px;color:var(--muted)">kcal</span></div></div>';
+    html += '<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Daily needs</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:var(--terra)">' + d.tdee + ' <span style="font-size:11px;color:var(--muted)">kcal</span></div></div></div>';
+    html += '<div style="margin-top:12px;padding:11px 14px;border-radius:10px;';
+    html += 'background:' + msgBg + ';border:1.5px solid ' + msgBorder + ';';
+    html += 'font-size:13px;font-weight:600;color:var(--text2);line-height:1.6">' + msg + '</div></div>';
+    document.getElementById('bmiResult').innerHTML = html;
+  } catch(e) { setRes('bmiResult', '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>'); }
+}
+
+// FIRST AID
+async function runAid(sit) {
+  document.getElementById('aidResult').style.display = 'block';
+  setLoad('aidContent', 'Dadi is fetching the first aid guide...');
+  document.getElementById('aidContent').scrollIntoView({behavior:'smooth'});
+  try {
+    var r = await fetch('/firstaid', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({situation:sit})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    document.getElementById('aidContent').innerHTML = '<div class="rc">' + fmt(d.reply) + '</div>';
+  } catch(e) {
+    document.getElementById('aidContent').innerHTML = '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>';
+  }
+}
+
+// CHAT
+var busy = false;
+function sq(msg) { document.getElementById('ci').value = msg; send(); }
+function ke(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function ar(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+
+async function send() {
+  if (busy) return;
+  var inp = document.getElementById('ci');
+  var msg = inp.value.trim();
+  if (!msg) return;
+  var w = document.getElementById('welcome');
+  if (w) w.remove();
+  busy = true;
+  inp.value = '';
+  inp.style.height = 'auto';
+  var c = document.getElementById('msgs');
+  var now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  c.innerHTML += '<div class="msg user"><div class="av">&#129489;</div><div class="mwrap"><div class="bubble">' + esc(msg) + '</div><div class="mtime">' + now + '</div></div></div>';
+  saveChatHistory();
+  var bid = 'b' + Date.now();
+  var tid = 'tm' + Date.now();
+  var aiDiv = document.createElement('div');
+  aiDiv.className = 'msg ai';
+  aiDiv.innerHTML = '<div class="av">&#128117;</div><div class="mwrap"><div class="dadi-says" id="ds'+bid+'">Dadi is typing...</div><div class="bubble" id="'+bid+'"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div><div class="msg-actions" id="ma'+bid+'" style="display:none"></div><div class="mtime" id="'+tid+'"></div></div>';
+  c.appendChild(aiDiv);
+  // Add action buttons safely
+  var maEl = document.getElementById('ma'+bid);
+  if (maEl) {
+    var cpBtn = document.createElement('button');
+    cpBtn.className = 'msg-act-btn'; cpBtn.title = 'Copy'; cpBtn.textContent = '\u{1F4CB}';
+    cpBtn.onclick = (function(b){ return function(){ copyMsg(b); }; })(bid);
+    var dlBtn = document.createElement('button');
+    dlBtn.className = 'msg-act-btn'; dlBtn.title = 'Download'; dlBtn.textContent = '\u{2B07}';
+    dlBtn.onclick = (function(b){ return function(){ downloadMsg(b); }; })(bid);
+    maEl.appendChild(cpBtn); maEl.appendChild(dlBtn);
+  }
+  c.scrollTop = c.scrollHeight;
+  var rawText = '';
+  var bubble = document.getElementById(bid);
+  var timeEl = document.getElementById(tid);
+  var typingShown = true;
+  var streamDone = false;
+  try {
+    var res = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})});
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    var reader = res.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+    while (true) {
+      var result = await reader.read();
+      if (result.done || streamDone) break;
+      buffer += decoder.decode(result.value, {stream:true});
+      var lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line.indexOf('data:') !== 0) continue;
+        var data = line.slice(6);
+        if (data.startsWith('[DONE:')) {
+          var t2 = data.slice(6, -1);
+          if (timeEl) timeEl.textContent = t2;
+          var ds = document.getElementById('ds' + bid);
+          if (ds) ds.textContent = 'Dadi Ki Dawai';
+          var ma = document.getElementById('ma' + bid);
+          if (ma) ma.style.display = 'flex';
+          saveChatHistory();
+          streamDone = true;
+          break;
+        }
+        if (data.startsWith('[ERROR:')) {
+          if (bubble) bubble.innerHTML = '<span style="color:var(--terra2)">Error: ' + esc(data.slice(7, -1)) + '</span>';
+          break;
+        }
+        if (typingShown && data.length > 0) { bubble.innerHTML = ''; typingShown = false; }
+        rawText += data.replace(/\\n/g, '\n');
+        bubble.innerHTML = fmt(rawText);
+        c.scrollTop = c.scrollHeight;
+      }
+    }
+  } catch(e) {
+    if (bubble) bubble.innerHTML = '<span style="color:var(--terra2)">Error: ' + esc(e.message) + '</span>';
+  }
+  c.scrollTop = c.scrollHeight;
+  busy = false;
+  inp.focus();
+}
+
+async function clearChat() {
+  if (!confirm('Clear conversation? Dadi will forget everything!')) return;
+  await fetch('/clear', {method:'POST'});
+  try { localStorage.removeItem('dadi_chat'); } catch(e) {}
+  var msgs = document.getElementById('msgs');
+  msgs.innerHTML = '<div class="welcome" id="welcome">' +
+    '<div class="w-big">&#128117;</div>' +
+    '<div class="w-title">"Ask Dadi anything!"</div>' +
+    '<p class="w-sub">Dadi is always here. Whatever troubles you — just ask.</p>' +
+    '<div class="chips">' +
+    '<button class="chip" onclick="sq(\'I have fever. What could it be?\')">&#129298; Fever</button>' +
+    '<button class="chip" onclick="sq(\'When should I see a doctor?\')">&#128680; Doctor?</button>' +
+    '<button class="chip" onclick="sq(\'Home remedies for back pain?\')">&#129460; Back pain</button>' +
+    '</div></div>';
+}
+</script>
+</body>
+</html>

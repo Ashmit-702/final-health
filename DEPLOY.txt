@@ -1,0 +1,38 @@
+# MedGuide AI — Deploy Guide
+
+## Step 1: Free Groq API Key (2 mins)
+1. Go to https://console.groq.com
+2. Sign up free — no credit card needed
+3. API Keys → Create API Key → Copy it
+
+## Step 2: Upload to GitHub
+1. github.com → New repository → name: medguide-ai → Public
+2. Upload ALL files from this zip (keep folder structure)
+3. Commit changes
+
+## Step 3: Deploy on Render (free)
+1. render.com → Sign up free
+2. New + → Web Service → Connect GitHub → select medguide-ai
+3. Render auto-reads render.yaml
+4. Environment Variables → Add:
+   Key:   GROQ_API_KEY
+   Value: (your key from Step 1)
+5. Create Web Service → live in ~2 mins ✅
+
+## Files
+healthbot/
+├── app.py               ← Flask backend (all 8 routes)
+├── templates/
+│   └── index.html       ← Full frontend
+├── requirements.txt
+└── render.yaml
+
+## Features
+- 💬 AI Chat — full conversation memory
+- ⚡ AI Triage — visual urgency score (USP)
+- 💊 Drug lookup
+- 🧪 Lab result interpreter
+- 📊 Health score calculator
+- ⚖️ BMI + calories calculator
+- 🩹 12 First aid guides
+- 🚨 Emergency contacts (112, 108, iCall)
