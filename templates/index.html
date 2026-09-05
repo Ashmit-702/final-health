@@ -26,8 +26,20 @@
   --f:'Nunito',sans-serif;--fd:'Lora',serif;
   --sh:0 2px 12px rgba(58,36,16,.1);
 }
+/* DARK THEME — overrides the same CSS variables so every element that
+   already uses var(--x) re-themes automatically. Brand accent colors
+   (terra/gold/sage/teal) are kept as-is; only backgrounds, text, borders,
+   and shadow tone change for night mode. */
+body.dark{
+  --bg:#1B140D;--bg2:#241A10;--bg3:#2E2013;
+  --panel:#251B12;
+  --text:#F0E4D0;--text2:#E4D2AE;--muted:#B08860;--hint:#8A6848;
+  --border:#4A3620;--border2:#5C4428;
+  --sh:0 2px 14px rgba(0,0,0,.45);
+}
 html,body{height:100%;margin:0;padding:0;overflow:hidden}
-body{font-family:var(--f);background:var(--bg);color:var(--text);font-size:14px}
+body{font-family:var(--f);background:var(--bg);color:var(--text);font-size:14px;
+  transition:background-color .25s ease,color .25s ease}
 
 /* HEADER */
 .hdr{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;
@@ -1398,7 +1410,14 @@ async function send() {
   var streamDone = false;
   try {
     var res = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})});
-    if (!res.ok) throw new Error('Server error ' + res.status);
+    if (!res.ok) {
+      var errMsg = 'Something went wrong (error ' + res.status + '). Please try again.';
+      try {
+        var errData = await res.json();
+        if (errData && errData.error) errMsg = errData.error;
+      } catch (parseErr) {}
+      throw new Error(errMsg);
+    }
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
     var buffer = '';
