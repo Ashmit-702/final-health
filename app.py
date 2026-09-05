@@ -1,4 +1,4 @@
-import os, json, re
+import os, json, re, logging
 from flask import Flask, render_template, request, jsonify, session, Response, stream_with_context
 from groq import Groq
 from datetime import datetime
@@ -6,6 +6,7 @@ import uuid
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dadi-ki-dawai-2024")
+logging.basicConfig(level=logging.INFO)
 
 _keys = [k.strip() for k in os.environ.get("GROQ_API_KEY", "").split(",") if k.strip()]
 _key_idx = [0]
@@ -18,7 +19,28 @@ def get_client():
 def next_key():
     _key_idx[0] += 1
 
-MODEL = "llama-3.3-70b-versatile"
+# Groq deprecated llama-3.3-70b-versatile (decommissioned for free/dev-tier
+# usage). Model names are configurable via env vars so future Groq migrations
+# don't require a code change -- just update the Render env var.
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
+VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "qwen/qwen3.6-27b")
+
+
+def friendly_groq_error(e):
+    """Turn a raw Groq/SDK exception into a safe, user-facing message while
+    logging the real error server-side for debugging."""
+    app.logger.error("Groq API error: %s", e)
+    err = str(e)
+    if not _keys:
+        return "Dadi's AI service isn't configured yet (missing API key). Please contact support.", 503
+    if "429" in err or "rate_limit" in err.lower():
+        next_key()
+        return "Dadi is getting a lot of questions right now. Please try again in a few seconds.", 503
+    if "model_not_found" in err.lower() or "does not exist" in err.lower() or "404" in err:
+        return "Dadi's AI model needs an update on the server. Please try again shortly or contact support.", 503
+    if "401" in err or "invalid_api_key" in err.lower() or "authentication" in err.lower():
+        return "Dadi's AI service has a configuration problem (invalid API key). Please contact support.", 503
+    return "Dadi couldn't respond right now. Please try again in a moment.", 502
 
 SYSTEM = """You are Dadi — a wise, warm Indian grandmother with deep medical knowledge. You speak like a caring dadi/nani who genuinely loves the person asking.
 
@@ -59,6 +81,14 @@ CULTURAL:
 - Costs matter — mention affordable options"""
 
 
+class LLMError(Exception):
+    """Raised with an already-safe, user-facing message + HTTP status."""
+    def __init__(self, message, status):
+        super().__init__(message)
+        self.message = message
+        self.status = status
+
+
 def llm(messages, max_tokens=800):
     try:
         r = get_client().chat.completions.create(
@@ -67,9 +97,8 @@ def llm(messages, max_tokens=800):
         )
         return r.choices[0].message.content
     except Exception as e:
-        if "rate_limit" in str(e) or "429" in str(e):
-            next_key()
-        raise
+        msg, status = friendly_groq_error(e)
+        raise LLMError(msg, status)
 
 
 @app.route("/")
@@ -113,9 +142,8 @@ def chat():
             stream=False
         ).choices[0].message.content
     except Exception as e:
-        if "rate_limit" in str(e) or "429" in str(e):
-            next_key()
-        return jsonify({"error": str(e)}), 500
+        msg, status = friendly_groq_error(e)
+        return jsonify({"error": msg}), status
 
     history.append({"role": "assistant", "content": full_reply})
     session["history"] = history[-20:]
@@ -166,8 +194,11 @@ def triage():
         match = re.search(r'\{.*\}', reply, re.DOTALL)
         data = json.loads(match.group() if match else reply)
         return jsonify({"triage": data})
+    except LLMError as e:
+        return jsonify({"error": e.message}), e.status
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("Triage error: %s", e)
+        return jsonify({"error": "Could not generate triage results. Please try again."}), 500
 
 
 @app.route("/drug", methods=["POST"])
@@ -183,8 +214,11 @@ def drug():
     )
     try:
         return jsonify({"reply": llm([{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}])})
+    except LLMError as e:
+        return jsonify({"error": e.message}), e.status
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("Drug lookup error: %s", e)
+        return jsonify({"error": "Could not fetch drug information. Please try again."}), 500
 
 
 @app.route("/lab", methods=["POST"])
@@ -200,8 +234,11 @@ def lab():
     )
     try:
         return jsonify({"reply": llm([{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}])})
+    except LLMError as e:
+        return jsonify({"error": e.message}), e.status
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("Lab interpretation error: %s", e)
+        return jsonify({"error": "Could not interpret lab results. Please try again."}), 500
 
 
 @app.route("/score", methods=["POST"])
@@ -218,8 +255,11 @@ def score():
     )
     try:
         return jsonify({"reply": llm([{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}])})
+    except LLMError as e:
+        return jsonify({"error": e.message}), e.status
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("Health score error: %s", e)
+        return jsonify({"error": "Could not calculate health score. Please try again."}), 500
 
 
 @app.route("/firstaid", methods=["POST"])
@@ -234,8 +274,11 @@ def firstaid():
     )
     try:
         return jsonify({"reply": llm([{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}])})
+    except LLMError as e:
+        return jsonify({"error": e.message}), e.status
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("First aid error: %s", e)
+        return jsonify({"error": "Could not fetch first aid guide. Please try again."}), 500
 
 
 @app.route("/bmi", methods=["POST"])
@@ -304,7 +347,7 @@ def extract_pdf():
             # It's an image — use Groq vision to extract text
             client2 = get_client()
             resp = client2.chat.completions.create(
-                model="meta-llama/llama-4-scout-17b-16e-instruct",
+                model=VISION_MODEL,
                 messages=[{
                     "role": "user",
                     "content": [
@@ -317,7 +360,8 @@ def extract_pdf():
             text = resp.choices[0].message.content
             return jsonify({"text": text})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        msg, status = friendly_groq_error(e)
+        return jsonify({"error": msg}), status
 
 
 @app.route("/clear", methods=["POST"])
